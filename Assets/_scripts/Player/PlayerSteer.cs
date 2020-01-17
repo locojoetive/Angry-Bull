@@ -6,7 +6,8 @@ public class PlayerSteer : MonoBehaviour
     private Camera mainCamera;
 
     private Rigidbody rb;
-    public RectTransform steering;
+    public RectTransform steeringNeedle;
+    public GameObject steering;
     private Vector3 turnToTargetector;
 
     private int screenSizeXHalf;
@@ -17,6 +18,7 @@ public class PlayerSteer : MonoBehaviour
         turnAbout = 0F;
 
     private bool active = true;
+    public float minimumSpeed;
 
     private void Start()
     {
@@ -33,9 +35,18 @@ public class PlayerSteer : MonoBehaviour
             {
                 HandleTouchPhase(touch);
             }
-            Debug.Log(fingerId);
             Steer();
+
+            HandleSteeringComponents();
         }
+    }
+
+    private void HandleSteeringComponents()
+    {
+        if (rb.velocity.magnitude < minimumSpeed)
+            steering.SetActive(false);
+        else
+            steering.SetActive(true);
     }
 
     private void HandleTouchPhase(Touch touch)
@@ -65,20 +76,21 @@ public class PlayerSteer : MonoBehaviour
             Vector3 currentDirection = new Vector3(rb.velocity.x, 0F, rb.velocity.z);
             Vector3 targetDirection = SimpleMath.RotateTowards(currentDirection, Vector3.up, turnAbout * turnFactor);
             rb.velocity = targetDirection;
+
             Quaternion newSteeringRotation = Quaternion.Slerp(
-                steering.transform.rotation,
+                steeringNeedle.transform.rotation,
                 Quaternion.Euler(new Vector3(0F, 0F, -turnAbout * 90F)),
                 0.075f
             );
-            steering.transform.rotation = newSteeringRotation;
+            steeringNeedle.transform.rotation = newSteeringRotation;
         } else 
         {
             Quaternion newSteeringRotation = Quaternion.Slerp(
-                steering.transform.rotation,
+                steeringNeedle.transform.rotation,
                 Quaternion.Euler(new Vector3(0F, 0F, 0F)),
                 0.075f
             );
-            steering.transform.rotation = newSteeringRotation;
+            steeringNeedle.transform.rotation = newSteeringRotation;
         }
     }
 
