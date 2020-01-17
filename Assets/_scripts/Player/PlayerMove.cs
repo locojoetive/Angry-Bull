@@ -3,24 +3,30 @@ using UnityEngine;
 
 public class PlayerMove : MonoBehaviour
 {
-    Camera mainCamera;
+    private Camera mainCamera;
+
     public LineRenderer line;
-    private GameObject player;
+
     private Vector3 playerPosition;
+    private Vector3 shootImpulse;
+    private Vector3 velocity;
+    private Vector3 turnTotargetVector;
+
     private Vector2 playerScreenPosition;
 
     private Rigidbody rb;
+
+    public bool steerLeft;
+    private bool active = true;
+
     public int fingerIdMoving = -1, fingerIdSteering = -1;
     private int screenSizeXHalf;
+
     public float turnFactor,
         shootPower = 10F;
     private float smoothTime = 1F;
-    private Vector3 shootImpulse;
-    private Vector3 velocity;
-    public bool steerLeft, active;
-
     private float turnAbout;
-    private Vector3 turnTotargetVector;
+
 
     internal void SetActive(bool active)
     {
@@ -60,10 +66,14 @@ public class PlayerMove : MonoBehaviour
                 HandleTouchPhase(touch);
                 Steer(touch);
             }
-
-            if (Input.anyKey)
+            if (fingerIdSteering == -1)
             {
-                Debug.Log("Button is pressed!");
+                Quaternion newSteeringRotation = Quaternion.Slerp(
+                    steering.transform.rotation,
+                    Quaternion.Euler(new Vector3(0F, 0F, 0F)),
+                    0.075f
+                );
+                steering.transform.rotation = newSteeringRotation;
             }
         }
     }
@@ -119,15 +129,6 @@ public class PlayerMove : MonoBehaviour
             );
             steering.transform.rotation = newSteeringRotation;
             Debug.Log(turnAbout);
-        }
-        else if (fingerIdSteering == -1)
-        {
-            Quaternion newSteeringRotation = Quaternion.Slerp(
-                steering.transform.rotation,
-                Quaternion.Euler(new Vector3(0F, 0F, 0F)),
-                0.075f
-            );
-            steering.transform.rotation = newSteeringRotation;
         }
     }
 

@@ -18,6 +18,8 @@ public class CameraFollowPlayer : MonoBehaviour
 
         float posX = Mathf.SmoothDamp(transform.position.x, player.transform.position.x, ref velocity.x, smoothTime);
         float posZ = Mathf.SmoothDamp(transform.position.z, player.transform.position.z, ref velocity.z, smoothTime);
+        posX = float.IsNaN(posX) ? 0F : posX;
+        posZ = float.IsNaN(posZ) ? 0F : posZ;
         transform.position = new Vector3(posX, transform.position.y, posZ);
     }
 }

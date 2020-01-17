@@ -1,34 +1,86 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class StageManager : MonoBehaviour
 {
-    ShowTimeLimit time;
-    OnFinishLine goal;
+    public GameObject pauseMenu,
+        pauseButton,
+        clearedMenu,
+        failedMenu,
+        steering,
+        player;
+
+    public bool paused = false,
+        cleared = false,
+        failed = false;
+
+    private static int currentStage = 0, lastStage = 0;
+    private string activeScene;
 
     private void Start()
     {
-        foreach(GameObject entity in GameObject.FindGameObjectsWithTag("Finish"))
-        {
-            if (entity.GetComponent<ShowTimeLimit>() != null)
-            {
-                time = entity.GetComponent<ShowTimeLimit>();
-            } else if (entity.GetComponent<OnFinishLine>() != null)
-            {
-                goal = entity.GetComponent<OnFinishLine>();
-            }
-        }
+        activeScene = SceneManager.GetActiveScene().name;
+        Debug.Log("fresh start!");
+        paused = false;
+        cleared = false;
+        failed = false;
     }
 
     private void Update()
     {
-        if (goal.isStageCleared())
+        HandleGameState();
+        HandleGameComponents();
+    }
+
+    private void HandleGameState()
+    {
+        Time.timeScale = paused || cleared || failed ? 0F : 1F;
+        cleared = failed && !cleared 
+            ? false 
+            : Goal.stageCleared;
+        failed = cleared 
+            ? false 
+            : Timer.gameOver;
+    }
+
+    private void HandleGameComponents()
+    {
+        steering.SetActive(!paused && !cleared & !failed);
+        pauseButton.SetActive(!paused && !cleared && !failed);
+        pauseMenu.SetActive(paused);
+        clearedMenu.SetActive(cleared);
+        failedMenu.SetActive(failed);
+    }
+
+
+    public void OnPause()
+    {
+        if (paused) Pause(false);
+        else Pause(true);
+    }
+
+    private void Pause(bool pause)
+    {
+        paused = pause;
+    }
+
+    public void OnTryAgain()
+    {
+        SceneManager.LoadScene(activeScene);
+    }
+
+    public void OnExitGame()
+    {
+        SceneManager.LoadScene("gameMenu");
+    }
+
+    public void OnNextStage()
+    {
+        if (currentStage == lastStage) SceneManager.LoadScene("credits");
+        else
         {
-            Debug.Log("Thank you for playing our game");
-        } else if (time.isGameOver())
-        {
-            Debug.Log("Time ran out! Wanna try again?");
+            currentStage++;
+            SceneManager.LoadScene("stage" + currentStage);
         }
     }
 }

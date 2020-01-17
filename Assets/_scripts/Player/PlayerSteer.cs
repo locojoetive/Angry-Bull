@@ -4,7 +4,7 @@ using UnityEngine;
 public class PlayerSteer : MonoBehaviour
 {
     private Rigidbody rb;
-    public bool active;
+    private bool active = true;
     private void Start()
     {
         rb = GetComponent<Rigidbody>();

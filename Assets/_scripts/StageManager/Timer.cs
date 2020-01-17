@@ -3,13 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ShowTimeLimit : MonoBehaviour
+public class Timer : MonoBehaviour
 {
     public Text timeText;
     public float
         passedTime,
         maxTime;
-    private bool gameOver;
+    public static bool gameOver = false;
+
+    private void Start()
+    {
+
+        gameOver = false;
+    }
 
     void Update()
     {
