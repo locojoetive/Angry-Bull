@@ -20,7 +20,6 @@ public class StageManager : MonoBehaviour
     private void Start()
     {
         activeScene = SceneManager.GetActiveScene().name;
-        Debug.Log("fresh start!");
         paused = false;
         cleared = false;
         failed = false;

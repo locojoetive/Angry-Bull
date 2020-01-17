@@ -22,9 +22,8 @@ public class TiltWithPlayer : MonoBehaviour
     void Update()
     {
         playerSpeed = player.GetComponent<Rigidbody>().velocity.magnitude;
-
-
         tiltRotation = (draggedLineRenderer.GetPosition(1) - draggedLineRenderer.GetPosition(0)).magnitude;
+
         if (tiltRotation == 0F)
         {
 
