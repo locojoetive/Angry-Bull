@@ -54,6 +54,7 @@ public class StageManager : MonoBehaviour
 
     public void OnPause()
     {
+        Debug.Log("Sumthin happenin?");
         if (paused) Pause(false);
         else Pause(true);
     }

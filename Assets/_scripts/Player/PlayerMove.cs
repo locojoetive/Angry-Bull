@@ -65,11 +65,16 @@ public class PlayerMove : MonoBehaviour
 
     private void HandleOrientation()
     {
+        Vector3 lineLength = new Vector3 (line.GetPosition(0).x, 0F, line.GetPosition(0).z) 
+            - new Vector3(line.GetPosition(1).x, 0F, line.GetPosition(1).z);
+        Debug.Log(Vector3.Angle(Vector3.forward, lineLength));
         Vector3 targetDirection = new Vector3(rb.velocity.x, 0F, rb.velocity.z);
-        if (targetDirection.magnitude > 0.5f)
-        {
-            transform.LookAt(transform.position + targetDirection);
-        }
+        targetDirection = targetDirection.magnitude > 0.5f 
+            ? targetDirection
+            : lineLength.magnitude > 0.01f
+                ? lineLength
+                : transform.forward;
+        transform.LookAt(transform.position + targetDirection);
     }
 
     private void HandleTouchPhase(Touch touch)

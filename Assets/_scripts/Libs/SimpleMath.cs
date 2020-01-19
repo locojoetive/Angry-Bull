@@ -79,4 +79,5 @@ public class SimpleMath : MonoBehaviour
         result[array.Length] = elementToAdd;
         return result;
     }
+
 }

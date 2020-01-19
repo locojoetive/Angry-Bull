@@ -13,6 +13,8 @@ GameObject:
   - component: {fileID: 994567518335620007}
   - component: {fileID: 994567518335620000}
   - component: {fileID: 994567518335620003}
+  - component: {fileID: 910879907}
+  - component: {fileID: 910879909}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -110,7 +112,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c1c5cd233d2d984db351bde83252874, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerRotationY: 0
-  tiltRotation: 0
-  velocity: 0
-  smoothTime: 0.075
+  smoothTime: 0.01
+--- !u!114 &910879907
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 994567518335620004}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c89b1d5975c4527448a0d3af980ab6ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  smoothTime: 0
+--- !u!114 &910879909
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 994567518335620004}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 949adb5945fd5ad46941bc54ab2beb42, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rotationSpeed: 0
+  maximumDragLength: 0
+  drag: {x: 0, y: 0, z: 0}
+  line: {fileID: 0}
