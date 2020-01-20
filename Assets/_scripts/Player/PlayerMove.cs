@@ -15,14 +15,16 @@ public class PlayerMove : MonoBehaviour
 
     private Rigidbody rb;
 
-    private bool active = true,
-        moving = false;
+    private bool active = true;
+    public bool moving = false;
 
     public static int fingerId = -1;
 
     public float shootPower = 10F;
     private float smoothTime = 1F;
-    
+    internal bool dragging;
+    private float dragForce;
+
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -38,16 +40,17 @@ public class PlayerMove : MonoBehaviour
             playerPosition = transform.position;
             playerScreenPosition = mainCamera.WorldToScreenPoint(playerPosition);
             moving = rb.velocity.magnitude > 1F;
+            dragging = (line.GetPosition(0) - line.GetPosition(1)).magnitude > 0F;
+
 
             HandleDragLine();
             HandleOrientation();
 
             foreach (Touch touch in Input.touches)
-            {
                 HandleTouchPhase(touch);
-            }
         }
     }
+
 
     private void HandleDragLine()
     {
@@ -59,7 +62,15 @@ public class PlayerMove : MonoBehaviour
         else
         {
             line.SetPosition(0, playerPosition);
-            line.SetPosition(1, toWorldPosition(getMovingTouch().position));
+            dragForce = (playerScreenPosition - getMovingTouch().position).magnitude / (
+                Camera.main.scaledPixelHeight > Camera.main.scaledPixelWidth 
+                        ? Camera.main.scaledPixelHeight
+                        : Camera.main.scaledPixelWidth
+            );
+            Debug.Log(dragForce);
+            Vector3 newStartPosition = dragForce * (toWorldPosition(getMovingTouch().position) - playerPosition);
+            newStartPosition = new Vector3(newStartPosition.x, playerPosition.y, newStartPosition.z);
+            line.SetPosition(1, newStartPosition);
         }
     }
 
@@ -67,11 +78,11 @@ public class PlayerMove : MonoBehaviour
     {
         Vector3 lineLength = new Vector3 (line.GetPosition(0).x, 0F, line.GetPosition(0).z) 
             - new Vector3(line.GetPosition(1).x, 0F, line.GetPosition(1).z);
-        Debug.Log(Vector3.Angle(Vector3.forward, lineLength));
+        float lineAngle = Vector3.SignedAngle(transform.forward, lineLength, Vector3.up);
         Vector3 targetDirection = new Vector3(rb.velocity.x, 0F, rb.velocity.z);
         targetDirection = targetDirection.magnitude > 0.5f 
             ? targetDirection
-            : lineLength.magnitude > 0.01f
+            : lineLength.magnitude > 0.1f
                 ? lineLength
                 : transform.forward;
         transform.LookAt(transform.position + targetDirection);
@@ -123,6 +134,10 @@ public class PlayerMove : MonoBehaviour
                 return touch;
         }
         throw new Exception();
+    }
+    internal float getDragForce()
+    {
+        return dragForce; 
     }
 }
 

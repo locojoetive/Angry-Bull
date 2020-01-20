@@ -4,20 +4,21 @@ using UnityEngine;
 
 public class CameraFollowPlayer : MonoBehaviour
 {
-    GameObject player;
     private Vector3 velocity;
     public float smoothTime;
+    private CameraTiltWithDrag tiltWithDrag;
+    private Transform player;
 
-    void Start()
+    private void Start()
     {
-        player = GameObject.FindGameObjectWithTag("Player");
+        tiltWithDrag = GetComponent<CameraTiltWithDrag>();
+        player = GameObject.FindGameObjectWithTag("Player").transform;
     }
-
     void Update()
     {
-
-        float posX = Mathf.SmoothDamp(transform.position.x, player.transform.position.x, ref velocity.x, smoothTime);
-        float posZ = Mathf.SmoothDamp(transform.position.z, player.transform.position.z, ref velocity.z, smoothTime);
+        Vector3 targetPosition = player.position;
+        float posX = Mathf.SmoothDamp(transform.position.x, targetPosition.x, ref velocity.x, smoothTime);
+        float posZ = Mathf.SmoothDamp(transform.position.z, targetPosition.z, ref velocity.z, smoothTime);
         posX = float.IsNaN(posX) ? 0F : posX;
         posZ = float.IsNaN(posZ) ? 0F : posZ;
         transform.position = new Vector3(posX, transform.position.y, posZ);
