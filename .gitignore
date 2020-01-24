@@ -40,3 +40,5 @@ Assets/StreamingAssets/crashlytics-build.properties
 
 # reference files from GunWick and InputController
 reference/
+
+# This is just a change so the local state will differ
