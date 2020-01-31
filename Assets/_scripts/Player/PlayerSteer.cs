@@ -20,9 +20,12 @@ public class PlayerSteer : MonoBehaviour
     private bool active = true;
     public float minimumSpeed;
 
+    private PlayerMoveAndRotate move;
+
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
+        move = GetComponent<PlayerMoveAndRotate>();
         mainCamera = Camera.main;
     }
 
@@ -36,7 +39,6 @@ public class PlayerSteer : MonoBehaviour
                 HandleTouchPhase(touch);
             }
             Steer();
-
             HandleSteeringComponents();
         }
     }
@@ -52,16 +54,15 @@ public class PlayerSteer : MonoBehaviour
     private void HandleTouchPhase(Touch touch)
     {
         if (touch.phase == TouchPhase.Began
-            && PlayerMove.fingerId != touch.fingerId
+            && !PlayerMoveAndRotate.dragging
             && fingerId == -1
-            && (!PlayerMove.isTouchingPlayer(touch) || PlayerMove.fingerId != -1)
+            && !PlayerMoveAndRotate.isTouchingPlayer(touch)
         ) {
-                fingerId = touch.fingerId;
+            fingerId = touch.fingerId;
         }
-        else if (touch.phase == TouchPhase.Canceled || touch.phase == TouchPhase.Ended 
-            && fingerId == touch.fingerId
+        else if ((touch.phase == TouchPhase.Canceled || touch.phase == TouchPhase.Ended) && fingerId == touch.fingerId
         ) {
-                fingerId = -1;
+            fingerId = -1;
         }
     }
 
@@ -73,9 +74,10 @@ public class PlayerSteer : MonoBehaviour
             Touch touch = getSteeringTouch();
             if (touch.position.x < screenSizeXHalf) turnAbout = -((screenSizeXHalf - touch.position.x) / screenSizeXHalf);
             else turnAbout = ((touch.position.x - screenSizeXHalf) / screenSizeXHalf);
-            Vector3 currentDirection = new Vector3(rb.velocity.x, 0F, rb.velocity.z);
-            Vector3 targetDirection = SimpleMath.RotateTowards(currentDirection, Vector3.up, turnAbout * turnFactor);
-            rb.velocity = targetDirection;
+            
+            //Vector3 currentDirection = new Vector3(rb.velocity.x, 0F, rb.velocity.z);
+            //Vector3 targetDirection = SimpleMath.RotateTowards(currentDirection, Vector3.up, turnAbout * turnFactor);
+            //rb.velocity = targetDirection;
 
             Quaternion newSteeringRotation = Quaternion.Slerp(
                 steeringNeedle.transform.rotation,
@@ -83,7 +85,8 @@ public class PlayerSteer : MonoBehaviour
                 0.075f
             );
             steeringNeedle.transform.rotation = newSteeringRotation;
-        } else 
+        }
+        else
         {
             Quaternion newSteeringRotation = Quaternion.Slerp(
                 steeringNeedle.transform.rotation,
