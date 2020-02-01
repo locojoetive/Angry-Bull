@@ -20,12 +20,12 @@ public class PlayerSteer : MonoBehaviour
     private bool active = true;
     public float minimumSpeed;
 
-    private PlayerMoveAndRotate move;
+    private BullMove move;
 
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
-        move = GetComponent<PlayerMoveAndRotate>();
+        move = GetComponent<BullMove>();
         mainCamera = Camera.main;
     }
 
@@ -54,9 +54,9 @@ public class PlayerSteer : MonoBehaviour
     private void HandleTouchPhase(Touch touch)
     {
         if (touch.phase == TouchPhase.Began
-            && !PlayerMoveAndRotate.dragging
+            && !TouchHandler.dragging
             && fingerId == -1
-            && !PlayerMoveAndRotate.isTouchingPlayer(touch)
+            && !TouchHandler.isTouchingPlayer(touch)
         ) {
             fingerId = touch.fingerId;
         }

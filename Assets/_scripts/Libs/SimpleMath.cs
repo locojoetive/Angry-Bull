@@ -80,4 +80,11 @@ public class SimpleMath : MonoBehaviour
         return result;
     }
 
+    internal static Vector3 projectVectorOnPlane(Vector3 input, Vector3 planeNormal)
+    {
+        return input - Vector3.Scale(
+                (Vector3.Scale(input, planeNormal) / Mathf.Pow(planeNormal.magnitude, 2F)),
+                planeNormal
+        );
+    }
 }

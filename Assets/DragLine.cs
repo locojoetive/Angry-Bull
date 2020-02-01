@@ -5,30 +5,26 @@ using UnityEngine;
 public class DragLine : MonoBehaviour
 {
     private LineRenderer line;
-    private PlayerMoveAndRotate player;
+    private BullMove player;
     private Camera mainCamera;
 
     void Start()
     {
         line = GetComponent<LineRenderer>();
-        player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerMoveAndRotate>();
+        player = GameObject.FindGameObjectWithTag("Player").GetComponent<BullMove>();
         mainCamera = Camera.main;
     }
 
     void LateUpdate()
     {
-        if (PlayerMoveAndRotate.dragging) {
-            Plane dragLinePlane = new Plane(-mainCamera.transform.forward, transform.position);
-            Ray startRay = mainCamera.ScreenPointToRay(PlayerMoveAndRotate.lastCapturedMovingTouchPosition),
-                endRay = mainCamera.ScreenPointToRay(PlayerMoveAndRotate.playerScreenPosition);
+        if (TouchHandler.dragging) {
+            /*Ray startRay = mainCamera.ScreenPointToRay(BullMove.playerScreenPosition),
+                endRay = mainCamera.ScreenPointToRay(BullMove.playerScreenPosition + TouchHandler.dragForceInScreenSpace);
             float rayDistance = mainCamera.nearClipPlane;
-            line.SetPosition(1, startRay.GetPoint(rayDistance));
-            line.SetPosition(0, endRay.GetPoint(rayDistance));
-            Vector2 worldToScreenDirection = PlayerMoveAndRotate.lastCapturedMovingTouchPosition - PlayerMoveAndRotate.playerScreenPosition;
-            worldToScreenDirection.x = (worldToScreenDirection.x) / (0.5f * mainCamera.scaledPixelWidth);
-            worldToScreenDirection.y = (worldToScreenDirection.y) / (0.5f * mainCamera.scaledPixelHeight);
-
-            Debug.Log(worldToScreenDirection);
+            */
+            line.SetPosition(0, player.transform.position);
+            line.SetPosition(1, CameraOrbit.projectedReference);
+            
         } else
         {
             line.SetPosition(1, transform.position);
