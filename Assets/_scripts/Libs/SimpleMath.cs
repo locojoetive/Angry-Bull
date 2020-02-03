@@ -87,4 +87,14 @@ public class SimpleMath : MonoBehaviour
                 planeNormal
         );
     }
+
+    public static bool vectorsfacingIntoTheSameDirection (Vector3 lhr, Vector3 rhr)
+    {
+        return Vector3.Dot(lhr, rhr) > 0;
+    }
+
+    public static bool vectorsArePerpendicular(Vector3 lhr, Vector3 rhr)
+    {
+        return Vector3.Dot(lhr, rhr) == 0;
+    }
 }

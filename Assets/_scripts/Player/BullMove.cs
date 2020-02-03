@@ -1,89 +1,44 @@
-﻿using UnityEngine;
+﻿/*  The Model:
+ *  This module represents the player inside the game.
+ *  Therefore it provides functions, which apply changes to the
+ *  actual game instance's behaviour in the game world.
+ */
+
+using UnityEngine;
 
 public class BullMove : MonoBehaviour
 {
     public static Vector3 shootImpulse;
-    public static Vector2 playerScreenPosition;
-    public bool moving;
-
-    private Camera mainCamera;
+    public static bool speeding;
 
     private Rigidbody rb;
-
-    private Vector3 playerPosition;
-    private Vector3 velocity;
-
-    private bool active = true;
-
     public float shootPower;
     private float smoothTime = 1F,
-        minimumVelocity = 0.5f;
+        speedingVelocity = 1F;
 
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
-        mainCamera = Camera.main;
     }
 
     void Update()
     {
-        playerPosition = transform.position;
-        playerScreenPosition = mainCamera.WorldToScreenPoint(playerPosition);
-        moving = rb.velocity.magnitude > minimumVelocity;
+        speeding = BullSteer.referenceVelocity.magnitude > speedingVelocity;
 
-        if (moving)
-            Time.timeScale = 0.5f;
-        else
-            Time.timeScale = 1F;
-    }
-
-    private void FixedUpdate()
-    {
-        if (active)
-            Shoot();
-    }
-
-    private void LateUpdate()
-    {
-        if (active)
-            HandleOrientation();
-    }
-
-    public bool isSpeeding()
-    {
-        return !moving;
-    }
-
-    private void HandleOrientation()
-    {
-        if (TouchHandler.dragging)
+        if(TouchHandler.dragReleased)
         {
-            transform.forward = CameraOrbit.getLookDirection();
+            TouchHandler.dragReleased = false;
+            if(!speeding && TouchHandler.dragMode == 1)
+                Shoot();
         }
     }
 
-    private void Shoot()
+    public void Shoot()
     {
-        if (TouchHandler.shoot)
-        {
-            shootImpulse = shootPower * transform.forward;
-            rb.AddForce(shootImpulse, ForceMode.Impulse);
-            Debug.Log("SHOOOOOOOT!! " + shootImpulse);
-            TouchHandler.shoot = false;
-        }
+        TouchHandler.dragReleased = false;
+        TouchHandler.dragMode = -1;
+        shootImpulse = CameraOrbit.suggestFacingDirectionToModel();
+        rb.AddForce(shootPower * shootImpulse, ForceMode.Impulse);
     }
-
-    private Vector3 toWorldPosition(Vector2 position)
-    {
-        Vector3 targetPosition = mainCamera.ScreenToWorldPoint(position) + mainCamera.transform.forward;
-        return targetPosition;
-    }
-
-
-    internal void SetActive(bool active)
-    {
-        this.active = active;
-    }
-
 }
 

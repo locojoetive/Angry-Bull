@@ -1,22 +1,31 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class LoadScene : MonoBehaviour
 {
 
+    float time = 0F,
+        reactAfter = 0.5f;
+
+    private void Start()
+    {
+        time = 0F;
+    }
+
     private void Update()
     {
-        foreach (Touch touch in Input.touches)
+        time += Time.deltaTime;
+        if (time > reactAfter)
         {
-            if (touch.phase == TouchPhase.Ended)
+            foreach (Touch touch in Input.touches)
             {
-                if (activeSceneIsMenu())
-                    SceneManager.LoadScene("stage0");
-                if (activeSceneIsCredits())
-                    SceneManager.LoadScene("gameMenu");
+                if (touch.phase == TouchPhase.Ended)
+                {
+                    if (activeSceneIsMenu())
+                        SceneManager.LoadScene("stage0");
+                    else if (activeSceneIsCredits())
+                        SceneManager.LoadScene("gameMenu");
+                }
             }
         }
     }

@@ -2,79 +2,88 @@
 
 public class CameraOrbit : MonoBehaviour
 {
-    public static Transform pointOfInterest,
-        pivot;
-    protected Vector3 localRotation = Vector3.zero;
-    protected float cameraDistance = 10F;
-    private static Camera mainCamera;
-    public float tiltSensitivity = 4F,
-        dragSensitivity = 2F,
-        orbitDampening = 10F,
-        scrollDampening = 6F,
-        moveDampening = 0.02F,
-        rotationSpeed = 5F;
-    public static Vector3 projectedReference;
-    public float rearrangingSpeed = 50F;
+    public static Transform pointOfInterest;
+    public static Transform[] children;
 
+    public Quaternion startRotation;
+
+    private float cameraDistance = 10F;
+    private static Camera mainCamera;
+    public float draggingSpeed = 5F;
+    public static Vector3 projectedReference;
+    public float rearrangingSpeed = 50F,
+        movingSpeed = 100F;
+    private float startDistanceFromPivot;
+    private int controlledChildIndex = 0;
     void Start()
     {
         mainCamera = Camera.main;
         pointOfInterest = GameObject.FindGameObjectWithTag("Player").transform;
-        pivot = transform.parent;
+        children = GetComponentsInChildren<Transform>();
+        startDistanceFromPivot = children[controlledChildIndex].localPosition.z;
+        startRotation = transform.rotation;
     }
 
-    void LateUpdate()
+    void Update()
     {
-        transform.parent.position = Vector3.Lerp(transform.parent.position, pointOfInterest.position, moveDampening);
-        
-        if (TouchHandler.dragging)
+        if (!BullMove.speeding && TouchHandler.dragMode == 1)
         {
-            localRotation.y -= rotationSpeed * TouchHandler.dragForceInCameraSpace.x;
-            localRotation.x = Mathf.Lerp(localRotation.x, 90F * (1F + TouchHandler.dragForceInCameraSpace.y), dragSensitivity);
-            localRotation.x = Mathf.Clamp(localRotation.x, 0F, 90F);
-            transform.parent.localRotation = Quaternion.RotateTowards(
-                transform.parent.localRotation,
-                Quaternion.Euler(localRotation),
-                rearrangingSpeed * Time.deltaTime
+            transform.rotation = Quaternion.RotateTowards(
+                transform.rotation,
+                TouchHandler.suggestRotationByEulerAngles(transform.rotation.eulerAngles),
+                draggingSpeed
+            );
+            children[controlledChildIndex].localPosition = Vector3.Slerp(
+                children[controlledChildIndex].localPosition,
+                new Vector3(0F, 0F, TouchHandler.dragForceInCameraSpace.magnitude * startDistanceFromPivot),
+                rearrangingSpeed
+            );
+        } else if(BullMove.speeding) {
+            float velocityReference = BullSteer.referenceVelocity.magnitude / 30F;
+            transform.rotation = Quaternion.RotateTowards(
+                transform.rotation,
+                BullSteer.suggestRotationDependingOnSpeed(pointOfInterest.eulerAngles),
+                movingSpeed
+            );
+            children[0].localPosition = Vector3.Slerp(
+                children[0].localPosition, 
+                new Vector3(0F, 0F, startDistanceFromPivot - 5F * velocityReference), 
+                rearrangingSpeed
+            );
+        } else {
+            transform.rotation = Quaternion.RotateTowards(
+                transform.rotation,
+                pointOfInterest.rotation * startRotation,
+                movingSpeed
+            );
+            children[0].localPosition = Vector3.Slerp(
+                children[0].localPosition, 
+                new Vector3(0F, 0F, startDistanceFromPivot), 
+                rearrangingSpeed
             );
         }
-        /*else if(BullMove.moving)
-        {
-        }*/
-        else
-        {
-            localRotation.x = 90F;
-            transform.parent.localRotation = Quaternion.RotateTowards(
-                transform.parent.localRotation, 
-                Quaternion.Euler(localRotation),
-                rearrangingSpeed * Time.deltaTime
-            );
-        }
+        transform.position = Vector3.Lerp(
+            transform.position,
+            pointOfInterest.position,
+            movingSpeed
+        );
     }
 
-    public static Vector3 getLookDirection()
+
+    public static Vector3 suggestFacingDirectionToModel()
     {
+        Ray endRay = mainCamera.ScreenPointToRay((Vector2) mainCamera.WorldToScreenPoint(pointOfInterest.position) + TouchHandler.dragForceInScreenSpace);
+        float distance = (pointOfInterest.position.y - mainCamera.transform.position.y) / endRay.direction.y;
+        projectedReference = endRay.GetPoint(distance);
         Vector3 normal = Vector3.up;
-        Vector3 lookDirection;
-
-        if (TouchHandler.dragging)
-        {
-            Ray startRay = mainCamera.ScreenPointToRay(BullMove.playerScreenPosition),
-                endRay = mainCamera.ScreenPointToRay(BullMove.playerScreenPosition + TouchHandler.dragForceInScreenSpace);
-            float distance = (pointOfInterest.position.y - mainCamera.transform.position.y) / endRay.direction.y;
-            projectedReference = endRay.GetPoint(distance);
-            lookDirection = pointOfInterest.position - projectedReference;
-        } else
-        {
-            lookDirection = mainCamera.transform.forward;
-        }
+        Vector3 lookDirection = pointOfInterest.position - projectedReference;
         lookDirection = SimpleMath.projectVectorOnPlane(lookDirection, normal);
 
-        Debug.Log(lookDirection);
         Debug.DrawLine(pointOfInterest.position, pointOfInterest.position + lookDirection, Color.red);
 
         return lookDirection == Vector3.zero
-            ? mainCamera.transform.up 
+            ? mainCamera.transform.up
             : lookDirection;
     }
+
 }

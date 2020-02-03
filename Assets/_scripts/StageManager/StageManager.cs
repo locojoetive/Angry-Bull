@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class StageManager : MonoBehaviour
@@ -8,27 +9,36 @@ public class StageManager : MonoBehaviour
         clearedMenu,
         failedMenu,
         steering,
-        player;
+        timer;
+    private GameObject player;
 
-    public bool paused = false,
+    public static bool paused = false,
         cleared = false,
-        failed = false;
+        failed = false,
+        inGame = true;
+    private bool speeding;
 
-    private static int currentStage = 0, lastStage = 0;
+    private static int currentStage = 0, lastStage = 1;
     private string activeScene;
+    private bool nextStageLoading;
 
-    private void Start()
+    void Start()
     {
-        activeScene = SceneManager.GetActiveScene().name;
-        paused = false;
-        cleared = false;
-        failed = false;
+        if (GameObject.FindGameObjectsWithTag("StageManager").Length > 1)
+        {
+            Destroy(this.gameObject);
+        }
+        DontDestroyOnLoad(this.gameObject);
+        player = GameObject.FindGameObjectWithTag("Player");
     }
 
     private void Update()
     {
-        HandleGameState();
-        HandleGameComponents();
+        if (inGame)
+        {
+            HandleGameState();
+            HandleGameComponents();
+        }
     }
 
     private void HandleGameState()
@@ -40,26 +50,27 @@ public class StageManager : MonoBehaviour
         failed = cleared 
             ? false 
             : Timer.gameOver;
+        speeding = inGame && BullMove.speeding;
     }
 
     private void HandleGameComponents()
     {
-        steering.SetActive(!paused && !cleared & !failed);
         pauseButton.SetActive(!paused && !cleared && !failed);
         pauseMenu.SetActive(paused);
         clearedMenu.SetActive(cleared);
         failedMenu.SetActive(failed);
+        timer.SetActive(inGame);
+        steering.SetActive(speeding);
     }
 
 
     public void OnPause()
     {
-        Debug.Log("Sumthin happenin?");
         if (paused) Pause(false);
         else Pause(true);
     }
 
-    private void Pause(bool pause)
+    private static void Pause(bool pause)
     {
         paused = pause;
     }
@@ -74,13 +85,76 @@ public class StageManager : MonoBehaviour
         SceneManager.LoadScene("gameMenu");
     }
 
+    private void ResetModule()
+    {
+        nextStageLoading = false;
+        paused = false;
+        cleared = false;
+        failed = false;
+        timer.GetComponent<Timer>().ResetTime();
+    }
+
     public void OnNextStage()
     {
-        if (currentStage == lastStage) SceneManager.LoadScene("credits");
-        else
+        if (!nextStageLoading)
         {
-            currentStage++;
-            SceneManager.LoadScene("stage" + currentStage);
+            nextStageLoading = true;
+            if (currentStage == lastStage) SceneManager.LoadScene("credits");
+            else
+            {
+                currentStage++;
+                SceneManager.LoadScene("stage" + currentStage);
+            }
         }
     }
+
+    void OnEnable()
+    {
+        //Tell our 'OnLevelFinishedLoading' function to start listening for a scene change as soon as this script is enabled.
+        SceneManager.sceneLoaded += OnLevelFinishedLoading;
+    }
+
+    void OnDisable()
+    {
+        //Tell our 'OnLevelFinishedLoading' function to stop listening for a scene change as soon as this script is disabled. Remember to always have an unsubscription for every delegate you subscribe to!
+        SceneManager.sceneLoaded -= OnLevelFinishedLoading;
+    }
+
+    void OnLevelFinishedLoading(Scene scene, LoadSceneMode mode)
+    {
+        activeScene = SceneManager.GetActiveScene().name;
+        if (activeScene.Contains("stage"))
+        {
+            OnStageLoaded();
+        }
+        else
+        {
+            OnMenuLoaded();
+        }
+    }
+
+    private void OnMenuLoaded()
+    {
+        inGame = false;
+        ResetModule();
+        DeactivateUI();
+        Time.timeScale = 1F;
+    }
+
+    private void DeactivateUI()
+    {
+        timer.SetActive(false);
+        pauseButton.SetActive(false);
+        pauseMenu.SetActive(false);
+        clearedMenu.SetActive(false);
+        failedMenu.SetActive(false);
+    }
+
+    private void OnStageLoaded()
+    {
+        inGame = true;
+        ResetModule();
+    }
+
+
 }

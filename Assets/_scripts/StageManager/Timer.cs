@@ -11,9 +11,9 @@ public class Timer : MonoBehaviour
         maxTime;
     public static bool gameOver = false;
 
-    private void Start()
+    public void ResetTime()
     {
-
+        passedTime = 0F;
         gameOver = false;
     }
 
