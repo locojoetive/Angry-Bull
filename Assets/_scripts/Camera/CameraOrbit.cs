@@ -6,15 +6,15 @@ public class CameraOrbit : MonoBehaviour
     public static Transform[] children;
 
     public Quaternion startRotation;
-
-    private float cameraDistance = 10F;
-    private static Camera mainCamera;
-    public float draggingSpeed = 5F;
-    public static Vector3 projectedReference;
-    public float rearrangingSpeed = 50F,
+    public float draggingSpeed = 5F,
+        rearrangingSpeed = 50F,
         movingSpeed = 100F;
+
+    private static Camera mainCamera;
+    private float cameraDistance = 10F;
     private float startDistanceFromPivot;
     private int controlledChildIndex = 0;
+
     void Start()
     {
         mainCamera = Camera.main;
@@ -30,7 +30,7 @@ public class CameraOrbit : MonoBehaviour
         {
             transform.rotation = Quaternion.RotateTowards(
                 transform.rotation,
-                TouchHandler.suggestRotationByEulerAngles(transform.rotation.eulerAngles),
+                suggestRotationByEulerAngles(transform.rotation.eulerAngles),
                 draggingSpeed
             );
             children[controlledChildIndex].localPosition = Vector3.Slerp(
@@ -69,21 +69,20 @@ public class CameraOrbit : MonoBehaviour
         );
     }
 
-
-    public static Vector3 suggestFacingDirectionToModel()
+    private Quaternion suggestRotationByEulerAngles(Vector3 currentEulerAngles)
     {
-        Ray endRay = mainCamera.ScreenPointToRay((Vector2) mainCamera.WorldToScreenPoint(pointOfInterest.position) + TouchHandler.dragForceInScreenSpace);
-        float distance = (pointOfInterest.position.y - mainCamera.transform.position.y) / endRay.direction.y;
-        projectedReference = endRay.GetPoint(distance);
-        Vector3 normal = Vector3.up;
-        Vector3 lookDirection = pointOfInterest.position - projectedReference;
-        lookDirection = SimpleMath.projectVectorOnPlane(lookDirection, normal);
-
-        Debug.DrawLine(pointOfInterest.position, pointOfInterest.position + lookDirection, Color.red);
-
-        return lookDirection == Vector3.zero
-            ? mainCamera.transform.up
-            : lookDirection;
+        float dragSensitivity = TouchHandler.dragSensitivity;
+        Vector2 dragForceInCameraSpace = TouchHandler.dragForceInCameraSpace;
+        Vector3 localRotation = currentEulerAngles;
+        float dragForceMagnitude = Mathf.Abs(dragForceInCameraSpace.x) > 0.2f
+            ? TouchHandler.dragForceInCameraSpace.x - 0.2f * Mathf.Sign(dragForceInCameraSpace.x)
+            : 0F;
+        localRotation.y -= dragSensitivity * dragForceMagnitude;
+        localRotation.x = Mathf.Lerp(localRotation.x, 90F * (1F + dragForceInCameraSpace.y), dragSensitivity);
+        localRotation.x = Mathf.Clamp(localRotation.x, 0F, 90F);
+        localRotation.z = 0F;
+        return Quaternion.Euler(localRotation);
     }
+    
 
 }

@@ -1,12 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class DragLine : MonoBehaviour
 {
     private LineRenderer line;
-    private BullMove player;
+    private Transform player;
     private Camera mainCamera;
 
     void Start()
@@ -16,12 +14,12 @@ public class DragLine : MonoBehaviour
     void LateUpdate()
     {
         if (!BullMove.speeding && TouchHandler.dragMode == 1) {
-            /*Ray startRay = mainCamera.ScreenPointToRay(BullMove.playerScreenPosition),
-                endRay = mainCamera.ScreenPointToRay(BullMove.playerScreenPosition + TouchHandler.dragForceInScreenSpace);
+            Ray startRay = mainCamera.ScreenPointToRay(mainCamera.WorldToScreenPoint(player.position)),
+                endRay = mainCamera.ScreenPointToRay(TouchHandler.dragForceInScreenSpace);
             float rayDistance = mainCamera.nearClipPlane;
-            */
-            line.SetPosition(0, player.transform.position);
-            line.SetPosition(1, CameraOrbit.projectedReference);
+
+            line.SetPosition(0, startRay.GetPoint(rayDistance));
+            line.SetPosition(1, endRay.GetPoint(rayDistance));
             
         } else
         {
@@ -45,7 +43,7 @@ public class DragLine : MonoBehaviour
     void OnLevelFinishedLoading(Scene scene, LoadSceneMode mode)
     {
         line = GetComponent<LineRenderer>();
-        player = GameObject.FindGameObjectWithTag("Player").GetComponent<BullMove>();
+        player = GameObject.FindGameObjectWithTag("Player").transform;
         mainCamera = Camera.main;
     }
 }

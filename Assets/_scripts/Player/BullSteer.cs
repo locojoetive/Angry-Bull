@@ -1,23 +1,19 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class BullSteer : MonoBehaviour
 {
     public static Vector3 referenceVelocity;
+    public static float turnAbout = 0F;
+    private new static Transform transform;
+
+    public float bullSteeringSensitivity;
 
     private Rigidbody rb;
-    private Vector3 turnToTargetector;
-    public static float turnAbout = 0F;
-    public float turnFactor = 0F;
-    private float smoothTime = 1F;
-    private bool active = true;
-    public float rotationSpeed;
-    public float bullSteeringSensitivity;
-    public float draggingCircleSpeed;
-    private bool collided;
+    private bool collided = false;
 
     void Start()
     {
+        transform = GetComponent<Transform>();
         rb = GetComponent<Rigidbody>();
     }
 
@@ -26,41 +22,58 @@ public class BullSteer : MonoBehaviour
         referenceVelocity = new Vector3(rb.velocity.x, 0F, rb.velocity.z);
     }
 
-    private void LateUpdate()
+    void FixedUpdate()
     {
         if (!BullMove.speeding && TouchHandler.dragMode == 1)
         {
-            transform.forward = CameraOrbit.suggestFacingDirectionToModel();
+            transform.forward = suggestFacingDirectionToModel();
         }
-        else if (BullMove.speeding && (!TouchHandler.dragging || collided))
+        else if (BullMove.speeding && collided)
         {
-            //            Debug.Log("Orientate on Speed!");
             collided = false;
             transform.forward = referenceVelocity;
         }
-        else if (BullMove.speeding && TouchHandler.dragMode == 2)
+        else if (BullMove.speeding)
         {
-  //          Debug.Log("Orientate on steering");
             Steer();
         }
-        else turnAbout = 0F;
-        
+        else
+        {
+            turnAbout = 0F;
+        }
     }
 
     private void Steer()
     {
-        turnAbout = TouchHandler.dragForceInCameraSpace.x;
+        // TODO: test this snippet
+        turnAbout = TouchHandler.getSteeringInput();
         Debug.Log(turnAbout);
-        Vector3 newEulers = new Vector3(0F, bullSteeringSensitivity*turnAbout, 0F);
-        Quaternion newBullRotation = Quaternion.Slerp(
-            transform.rotation,
-            Quaternion.Euler(newEulers) * transform.rotation,
-            rotationSpeed
-        );
-        Vector3 newTargetDirection = transform.TransformDirection(new Vector3(bullSteeringSensitivity * turnAbout, 0F, 0F));
-        rb.AddForce(newTargetDirection, ForceMode.Force);
+        Vector3 newTargetDirection = transform.TransformDirection(new Vector3(0, turnAbout, 0));
+        rb.angularVelocity = bullSteeringSensitivity * newTargetDirection;
     }
-    internal static Quaternion suggestRotationDependingOnSpeed(Vector3 currentEulerAngles)
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.tag != "Floor")
+            collided = true;
+    }
+
+    public static Vector3 suggestFacingDirectionToModel()
+    {
+        Camera mainCamera = Camera.main;
+        Ray endRay = mainCamera.ScreenPointToRay((Vector2)mainCamera.WorldToScreenPoint(transform.position) + TouchHandler.dragForceInScreenSpace);
+        float distance = (transform.position.y - mainCamera.transform.position.y) / endRay.direction.y;
+        Vector3 projectedReference = endRay.GetPoint(distance);
+        Vector3 normal = Vector3.up;
+        Vector3 lookDirection = transform.position - projectedReference;
+        lookDirection = SimpleMath.projectVectorOnPlane(lookDirection, normal);
+        Debug.DrawLine(transform.position, transform.position + lookDirection, Color.red);
+        return lookDirection == Vector3.zero
+            ? mainCamera.transform.up
+            : lookDirection;
+    }
+
+    public static Quaternion suggestRotationDependingOnSpeed(Vector3 currentEulerAngles)
     {
         Vector3 localRotation = currentEulerAngles;
         float movingSpeed = referenceVelocity.magnitude / 30F;
@@ -68,11 +81,5 @@ public class BullSteer : MonoBehaviour
         localRotation.x = Mathf.Clamp(localRotation.x, 45F, 90F);
         localRotation.z = 0F;
         return Quaternion.Euler(localRotation);
-    }
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.tag != "Floor")
-            collided = true;
     }
 }

@@ -11,8 +11,9 @@ public class BullMove : MonoBehaviour
     public static Vector3 shootImpulse;
     public static bool speeding;
 
-    private Rigidbody rb;
     public float shootPower;
+
+    private Rigidbody rb;
     private float smoothTime = 1F,
         speedingVelocity = 1F;
 
@@ -37,8 +38,9 @@ public class BullMove : MonoBehaviour
     {
         TouchHandler.dragReleased = false;
         TouchHandler.dragMode = -1;
-        shootImpulse = CameraOrbit.suggestFacingDirectionToModel();
+        shootImpulse = BullSteer.suggestFacingDirectionToModel();
         rb.AddForce(shootPower * shootImpulse, ForceMode.Impulse);
     }
+    
 }
 

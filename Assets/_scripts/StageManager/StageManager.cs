@@ -1,26 +1,47 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class StageManager : MonoBehaviour
 {
+    public static bool paused = false,
+        cleared = false,
+        failed = false,
+        inGame = true;
+
+    private static int currentStage = 0, lastStage = 1;
+
     public GameObject pauseMenu,
         pauseButton,
         clearedMenu,
         failedMenu,
         steering,
         timer;
+
     private GameObject player;
-
-    public static bool paused = false,
-        cleared = false,
-        failed = false,
-        inGame = true;
-    private bool speeding;
-
-    private static int currentStage = 0, lastStage = 1;
     private string activeScene;
     private bool nextStageLoading;
+
+    void OnLevelFinishedLoading(Scene scene, LoadSceneMode mode)
+    {
+        activeScene = SceneManager.GetActiveScene().name;
+        if (activeScene.Contains("stage"))
+            OnStageLoaded();
+        else
+            OnMenuLoaded();
+    }
+
+    void OnEnable()
+    {
+        //Tell our 'OnLevelFinishedLoading' function to start listening for a scene change as soon as this script is enabled.
+        SceneManager.sceneLoaded += OnLevelFinishedLoading;
+    }
+
+    void OnDisable()
+    {
+        //Tell our 'OnLevelFinishedLoading' function to stop listening for a scene change as soon as this script is disabled.
+        // Remember to always have an unsubscription for every delegate you subscribe to!
+        SceneManager.sceneLoaded -= OnLevelFinishedLoading;
+    }
 
     void Start()
     {
@@ -37,7 +58,7 @@ public class StageManager : MonoBehaviour
         if (inGame)
         {
             HandleGameState();
-            HandleGameComponents();
+            HandleUIComponents();
         }
     }
 
@@ -50,17 +71,16 @@ public class StageManager : MonoBehaviour
         failed = cleared 
             ? false 
             : Timer.gameOver;
-        speeding = inGame && BullMove.speeding;
     }
 
-    private void HandleGameComponents()
+    private void HandleUIComponents()
     {
         pauseButton.SetActive(!paused && !cleared && !failed);
         pauseMenu.SetActive(paused);
         clearedMenu.SetActive(cleared);
         failedMenu.SetActive(failed);
         timer.SetActive(inGame);
-        steering.SetActive(speeding);
+        steering.SetActive(BullMove.speeding);
     }
 
 
@@ -85,15 +105,7 @@ public class StageManager : MonoBehaviour
         SceneManager.LoadScene("gameMenu");
     }
 
-    private void ResetModule()
-    {
-        nextStageLoading = false;
-        paused = false;
-        cleared = false;
-        failed = false;
-        timer.GetComponent<Timer>().ResetTime();
-    }
-
+    
     public void OnNextStage()
     {
         if (!nextStageLoading)
@@ -108,29 +120,11 @@ public class StageManager : MonoBehaviour
         }
     }
 
-    void OnEnable()
-    {
-        //Tell our 'OnLevelFinishedLoading' function to start listening for a scene change as soon as this script is enabled.
-        SceneManager.sceneLoaded += OnLevelFinishedLoading;
-    }
 
-    void OnDisable()
+    private void OnStageLoaded()
     {
-        //Tell our 'OnLevelFinishedLoading' function to stop listening for a scene change as soon as this script is disabled. Remember to always have an unsubscription for every delegate you subscribe to!
-        SceneManager.sceneLoaded -= OnLevelFinishedLoading;
-    }
-
-    void OnLevelFinishedLoading(Scene scene, LoadSceneMode mode)
-    {
-        activeScene = SceneManager.GetActiveScene().name;
-        if (activeScene.Contains("stage"))
-        {
-            OnStageLoaded();
-        }
-        else
-        {
-            OnMenuLoaded();
-        }
+        inGame = true;
+        ResetModule();
     }
 
     private void OnMenuLoaded()
@@ -139,6 +133,15 @@ public class StageManager : MonoBehaviour
         ResetModule();
         DeactivateUI();
         Time.timeScale = 1F;
+    }
+
+    private void ResetModule()
+    {
+        nextStageLoading = false;
+        paused = false;
+        cleared = false;
+        failed = false;
+        timer.GetComponent<Timer>().ResetTime();
     }
 
     private void DeactivateUI()
@@ -150,11 +153,6 @@ public class StageManager : MonoBehaviour
         failedMenu.SetActive(false);
     }
 
-    private void OnStageLoaded()
-    {
-        inGame = true;
-        ResetModule();
-    }
 
 
 }
