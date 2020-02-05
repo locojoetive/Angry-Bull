@@ -28,14 +28,10 @@ public class BullSteer : MonoBehaviour
         {
             transform.forward = suggestFacingDirectionToModel();
         }
-        else if (BullMove.speeding && collided)
-        {
-            collided = false;
-            transform.forward = referenceVelocity;
-        }
         else if (BullMove.speeding)
         {
             Steer();
+            transform.forward = referenceVelocity;
         }
         else
         {
@@ -45,11 +41,9 @@ public class BullSteer : MonoBehaviour
 
     private void Steer()
     {
-        // TODO: test this snippet
         turnAbout = TouchHandler.getSteeringInput();
-        Debug.Log(turnAbout);
-        Vector3 newTargetDirection = transform.TransformDirection(new Vector3(0, turnAbout, 0));
-        rb.angularVelocity = bullSteeringSensitivity * newTargetDirection;
+        Vector3 newTargetDirection = SimpleMath.RotateTowards(rb.velocity, transform.up, bullSteeringSensitivity * turnAbout);
+        rb.velocity = newTargetDirection;
     }
 
     private void OnCollisionEnter(Collision collision)

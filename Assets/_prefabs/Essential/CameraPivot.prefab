@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3883300219209487051}
+  - component: {fileID: 590767314}
   m_Layer: 0
   m_Name: CameraPivot
   m_TagString: Untagged
@@ -31,6 +32,22 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
+--- !u!114 &590767314
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3883300219209487044}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d14e92b001b1ba548b777df214327055, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  startRotation: {x: 0, y: 0, z: 0, w: 0}
+  draggingSpeed: 1
+  rearrangingSpeed: 5
+  movingSpeed: 1
 --- !u!1001 &5015435659612493477
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -98,27 +115,8 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 5605406110534157088, guid: 5887bcfb38810194f910bf83ad84a133,
-        type: 3}
-      propertyPath: moveDampening
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 5605406110534157088, guid: 5887bcfb38810194f910bf83ad84a133,
-        type: 3}
-      propertyPath: draggingSpeed
-      value: 25
-      objectReference: {fileID: 0}
-    - target: {fileID: 5605406110534157088, guid: 5887bcfb38810194f910bf83ad84a133,
-        type: 3}
-      propertyPath: rearrangingSpeed
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 5605406110534157088, guid: 5887bcfb38810194f910bf83ad84a133,
-        type: 3}
-      propertyPath: movingSpeed
-      value: 400
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 5605406110534157088, guid: 5887bcfb38810194f910bf83ad84a133, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 5887bcfb38810194f910bf83ad84a133, type: 3}
 --- !u!4 &4668321923738409004 stripped
 Transform:

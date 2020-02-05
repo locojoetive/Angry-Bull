@@ -25,7 +25,6 @@ public class BullMove : MonoBehaviour
     void Update()
     {
         speeding = BullSteer.referenceVelocity.magnitude > speedingVelocity;
-
         if(TouchHandler.dragReleased)
         {
             TouchHandler.dragReleased = false;

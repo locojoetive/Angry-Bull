@@ -17,7 +17,6 @@ public class StageManager : MonoBehaviour
         steering,
         timer;
 
-    private GameObject player;
     private string activeScene;
     private bool nextStageLoading;
 
@@ -50,7 +49,6 @@ public class StageManager : MonoBehaviour
             Destroy(this.gameObject);
         }
         DontDestroyOnLoad(this.gameObject);
-        player = GameObject.FindGameObjectWithTag("Player");
     }
 
     private void Update()
@@ -64,7 +62,6 @@ public class StageManager : MonoBehaviour
 
     private void HandleGameState()
     {
-        Time.timeScale = paused || cleared || failed ? 0F : 1F;
         cleared = failed && !cleared 
             ? false 
             : Goal.stageCleared;
@@ -75,12 +72,12 @@ public class StageManager : MonoBehaviour
 
     private void HandleUIComponents()
     {
-        pauseButton.SetActive(!paused && !cleared && !failed);
+        pauseButton.SetActive(inGame && !paused && !cleared && !failed);
         pauseMenu.SetActive(paused);
         clearedMenu.SetActive(cleared);
         failedMenu.SetActive(failed);
         timer.SetActive(inGame);
-        steering.SetActive(BullMove.speeding);
+        steering.SetActive(inGame && BullMove.speeding);
     }
 
 
@@ -120,7 +117,6 @@ public class StageManager : MonoBehaviour
         }
     }
 
-
     private void OnStageLoaded()
     {
         inGame = true;
@@ -132,7 +128,6 @@ public class StageManager : MonoBehaviour
         inGame = false;
         ResetModule();
         DeactivateUI();
-        Time.timeScale = 1F;
     }
 
     private void ResetModule()
@@ -151,8 +146,6 @@ public class StageManager : MonoBehaviour
         pauseMenu.SetActive(false);
         clearedMenu.SetActive(false);
         failedMenu.SetActive(false);
+        steering.SetActive(false);
     }
-
-
-
 }

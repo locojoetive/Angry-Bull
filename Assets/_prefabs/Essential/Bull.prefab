@@ -124,11 +124,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5bbd85672fe313543af3a18b216113a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  steeringNeedle: {fileID: 0}
-  turnFactor: 0.05
-  steeringNeedleRotationSpeed: 1
-  bullRotatingSpeed: 0.5
-  draggingCircleSpeed: 0.002
+  bullSteeringSensitivity: 0.05
 --- !u!114 &830018413789080458
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -141,4 +137,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 193629bd1b24c2d49b916143966be5cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shootPower: 12
+  shootPower: 50

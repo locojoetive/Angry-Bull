@@ -18,6 +18,7 @@ public class TouchHandler : MonoBehaviour
     public static int dragMode = 0;
     public static bool dragReleased = false;
     public static bool dragging = false;
+    public static bool tiltControl;
 
     public static float dragSensitivity = 50F;
 
@@ -26,7 +27,6 @@ public class TouchHandler : MonoBehaviour
     private Camera mainCamera;
     private float time = 0F;
     private float reactAfter = 0.1f;
-    
 
     void Awake()
     {
@@ -35,6 +35,7 @@ public class TouchHandler : MonoBehaviour
 
     void Update()
     {
+        Debug.Log(tiltControl);
         if(StageManager.inGame)
         {
             if (time > reactAfter)
@@ -51,13 +52,17 @@ public class TouchHandler : MonoBehaviour
 
     internal static float getSteeringInput()
     {
-        if (dragMode == 2)
+        if (dragging && dragMode == 2)
         {
             return dragForceInCameraSpace.x;
-        } else
+        }
+        else if (tiltControl)
         {
-            // TODO: optimize returned tilt value
             return tilt.x;
+        }
+        else
+        {
+            return 0F;
         }
     }
 
@@ -104,10 +109,17 @@ public class TouchHandler : MonoBehaviour
                 if (result.gameObject.GetComponent<Button>())
                 {
                     Button button = result.gameObject.GetComponent<Button>();
+                    Debug.Log(button.name);
                     button.onClick.Invoke();
                     buttonCount++;
+                } else if (result.gameObject.transform.parent.parent.GetComponent<Toggle>())
+                {
+                    Debug.Log(result.gameObject.transform.parent.parent.name);
+                    Toggle toggle = result.gameObject.transform.parent.parent.GetComponent<Toggle>();
+                    toggle.onValueChanged.Invoke(!toggle.isOn);
+                    buttonCount++;
                 }
-            
+
             });
             return buttonCount > 0;
         }
