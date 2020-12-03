@@ -12,17 +12,16 @@ public class BullMove : MonoBehaviour
     public static bool speeding;
 
     public float shootPower;
+    public float speedingVelocity = 2F;
 
     private Rigidbody rb;
-    private float smoothTime = 1F,
-        speedingVelocity = 1F;
 
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
     }
 
-    void Update()
+    void FixedUpdate()
     {
         speeding = BullSteer.referenceVelocity.magnitude > speedingVelocity;
         if(TouchHandler.dragReleased)

@@ -17,13 +17,9 @@ public class BullSteer : MonoBehaviour
         rb = GetComponent<Rigidbody>();
     }
 
-    void Update()
-    {
-        referenceVelocity = new Vector3(rb.velocity.x, 0F, rb.velocity.z);
-    }
-
     void FixedUpdate()
     {
+        referenceVelocity = new Vector3(rb.velocity.x, 0F, rb.velocity.z);
         if (!BullMove.speeding && TouchHandler.dragMode == 1)
         {
             transform.forward = suggestFacingDirectionToModel();

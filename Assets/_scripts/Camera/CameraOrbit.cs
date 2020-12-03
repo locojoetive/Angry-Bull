@@ -6,7 +6,7 @@ public class CameraOrbit : MonoBehaviour
     public static Transform[] children;
 
     public Quaternion startRotation;
-    public float draggingSpeed = 5F,
+    public float draggingSpeed = 1F,
         rearrangingSpeed = 50F,
         movingSpeed = 100F;
 
@@ -24,7 +24,7 @@ public class CameraOrbit : MonoBehaviour
         startRotation = transform.rotation;
     }
 
-    void Update()
+    void LateUpdate()
     {
         if (!BullMove.speeding && TouchHandler.dragMode == 1)
         {
@@ -65,7 +65,7 @@ public class CameraOrbit : MonoBehaviour
         transform.position = Vector3.Lerp(
             transform.position,
             pointOfInterest.position,
-            movingSpeed
+            rearrangingSpeed
         );
     }
 
