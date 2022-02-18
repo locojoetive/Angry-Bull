@@ -1,0 +1,21 @@
+{
+	"folders": [
+		{
+			"name": "AngryBull",
+			"path": "."
+		},
+		{
+			"name": "UE4",
+			"path": "C:\\_unzipped_programs\\unreal\\UE_4.26"
+		}
+	],
+	"settings": {
+		"typescript.tsc.autoDetect": "off"
+	},
+	"extensions": {
+		"recommendations": [
+			"ms-vscode.cpptools",
+			"ms-dotnettools.csharp"
+		]
+	}
+}
