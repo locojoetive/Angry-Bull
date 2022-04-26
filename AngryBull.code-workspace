@@ -10,7 +10,12 @@
 		}
 	],
 	"settings": {
-		"typescript.tsc.autoDetect": "off"
+		"typescript.tsc.autoDetect": "off",
+		"C_Cpp.default.forcedInclude": [
+			"${default}",
+			"C:\\_projects\\GameDev\\UE\\AngryBull\\Intermediate\\Build\\Win64\\UE4Editor\\Development\\AngryBull\\Definitions.AngryBull.h",
+			"C:\\_projects\\GameDev\\UE\\AngryBull\\Intermediate\\Build\\Win64\\AngryBullEditor\\Development\\Engine\\SharedPCH.Engine.ShadowErrors.h"
+		]
 	},
 	"extensions": {
 		"recommendations": [
